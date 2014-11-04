@@ -28,7 +28,7 @@ void UserStream::run()
     QUrlQuery   oauthQuery;
     QByteArray  signatureBaseString;
     QByteArray  oauthHeader;
-    QNetworkRequest request(QUrl(USERSTREAM_URL));
+    QNetworkRequest request;
     QNetworkAccessManager manager;
     QByteArray response;
     QByteArray buffer;
@@ -71,6 +71,7 @@ void UserStream::run()
         }
         oauthHeader.chop(2);
 
+        request.setUrl(QUrl(USERSTREAM_URL));
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
         request.setRawHeader("Authorization", oauthHeader);
 
