@@ -37,7 +37,7 @@ void UpdateName::exec(const QByteArray twitterStatusObjectJsonData)
     QJsonObject statusObject        = QJsonDocument::fromJson(twitterStatusObjectJsonData).object();
     QJsonObject userObject          = statusObject.value("user").toObject();
     QString text                    = statusObject.value("text").toString();
-    const QString status_id         = statusObject.value("id").toString();
+    const QString status_id         = statusObject.value("id_str").toString();
     const QString user_screen_name  = userObject.value("screen_name").toString();
     const QRegExp updateNameRegExp1 = QRegExp(QString("^.*@").append(myScreenName).append("\\s+update_name\\s+.*"));
     const QRegExp updateNameRegExp2 = QRegExp(QString("^\\s*.+\\s*\\(@").append(myScreenName).append("\\).*$"));
@@ -48,6 +48,7 @@ void UpdateName::exec(const QByteArray twitterStatusObjectJsonData)
     }
 
     //qDebug() << text;
+    qDebug() << status_id;
 
     if(updateNameRegExp1.exactMatch(text)) {
         newName = text.remove(QRegExp(QString("^.*@").append(myScreenName).append("\\s+update_name\\s+")));
