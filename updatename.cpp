@@ -48,7 +48,7 @@ void UpdateName::exec(const QByteArray twitterStatusObjectJsonData)
     }
 
     //qDebug() << text;
-    qDebug() << status_id;
+    //qDebug() << status_id;
 
     if(updateNameRegExp1.exactMatch(text)) {
         newName = text.remove(QRegExp(QString("^.*@").append(myScreenName).append("\\s+update_name\\s+")));
