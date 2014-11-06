@@ -2,8 +2,9 @@
 #define SETTINGS_H
 
 #include <QSettings>
+#include <QObject>
 
-class Settings : public QSettings
+class Settings : public QObject
 {
     Q_OBJECT
 public:
@@ -23,6 +24,8 @@ public slots:
 
 private:
     const QString FILE_NAME = "update_name_config.ini";
+
+    QSettings *settings = new QSettings(FILE_NAME, QSettings::IniFormat, this);
 
     QString consumer_key;
     QString consumer_secret;
