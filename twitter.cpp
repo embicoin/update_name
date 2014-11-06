@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QEventLoop>
 #include <QMessageAuthenticationCode>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QJsonArray>
@@ -129,7 +130,7 @@ QByteArray Twitter::requestTwitterApi(const QNetworkAccessManager::Operation htt
             return reply->readAll();
         } else {
             reply->deleteLater();
-            throw std::runtime_error(QJsonDocument::fromJson(reply->readAll()).object().value("errors").toArray()[0].toString().toStdString());
+            throw std::runtime_error(QJsonDocument::fromJson(reply->readAll()).object().value("errors").toArray().first().toObject().value("message").toString().toStdString());
         }
     } else {
         reply->deleteLater();
