@@ -12,24 +12,16 @@ UpdateName::UpdateName(QObject *parent) :
         qCritical() << "screen_nameの取得に失敗しました。: " << e.what();
     }
 
-    postStartupMessage();
+    try {
+        twitter.statusUpdate("update_nameが起動されました。");
+    } catch(std::runtime_error &e) {
+        qCritical() << "スタートアップメッセージのツイートに失敗しました。: " << e.what();
+    }
 }
 
 QString UpdateName::lastErrorMessage()
 {
     return errorMessage;
-}
-
-void UpdateName::postStartupMessage()
-{
-    try {
-        twitter.statusUpdate("update_nameが起動されました。");
-        emit stateChanged(StartupMessagePosted);
-    } catch(std::runtime_error &e) {
-        errorMessage = e.what();
-        emit stateChanged(StartupMessageFailed);
-        return;
-    }
 }
 
 void UpdateName::exec(const QByteArray twitterStatusObjectJsonData)

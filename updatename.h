@@ -13,14 +13,12 @@ public:
     explicit UpdateName(QObject *parent = 0);
 
     enum State {
-        RecieveResultFailed  = -4,
-        NameUpdateFailed     = -3,
-        StartupMessageFailed = -1,
-        Aborted              = 0,
-        StartupMessagePosted = 1,
-        Executed             = 2,
-        NameUpdated          = 3,
-        ResultRecieved       = 4
+        RecieveResultFailed = 0,
+        NameUpdateFailed,
+        Aborted,
+        Executed,
+        NameUpdated,
+        ResultRecieved,
     };
 
     QString lastErrorMessage();
@@ -34,8 +32,6 @@ public slots:
     void exec(const QByteArray twitterStatusObjectJsonData);
 
 private:
-    void postStartupMessage();
-
     Twitter twitter;
     QString myScreenName;
     QString errorMessage;

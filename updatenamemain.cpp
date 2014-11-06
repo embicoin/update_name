@@ -48,18 +48,11 @@ void UpdateNameMain::updateNameStateChanged(UpdateName::State state)
         qCritical() << "nameの変更に失敗しました。";
         qCritical() << updateName.lastErrorMessage();
         break;
-    case UpdateName::StartupMessageFailed:
-        qCritical() << "スタートアップメッセージのツイートに失敗しました。";
-        qCritical() << updateName.lastErrorMessage();
-        break;
     case UpdateName::Aborted:
         qWarning() << "update_nameが拒否されました。";
         break;
     case UpdateName::Executed:
         qDebug() << "update_nameが実行されました。";
-        break;
-    case UpdateName::StartupMessagePosted:
-        qDebug() << "スタートアップメッセージをツイートしました。";
         break;
     case UpdateName::NameUpdated:
         qDebug() << "nameが変更されました。";
