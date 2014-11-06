@@ -1,20 +1,17 @@
 #include "settings.h"
 
-#define FILE_NAME "update_name_config.ini"
-
 Settings::Settings(QObject *parent) :
-    QObject(parent)
+    QSettings(FILE_NAME, QSettings::IniFormat, parent)
 {
-    settings = new QSettings(FILE_NAME, QSettings::IniFormat, this);
-    consumer_key = settings->value("ConsumerKey").toString();
-    consumer_secret = settings->value("ConsumerSecret").toString();
-    access_token = settings->value("AccessToken").toString();
-    access_token_secret = settings->value("AccessTokenSecret").toString();
+    consumer_key = value("ConsumerKey").toString();
+    consumer_secret = value("ConsumerSecret").toString();
+    access_token = value("AccessToken").toString();
+    access_token_secret = value("AccessTokenSecret").toString();
 }
 
 Settings::~Settings()
 {
-    settings->deleteLater();
+    //settings->deleteLater();
 }
 
 QString Settings::consumerKey()
@@ -39,24 +36,24 @@ QString Settings::accessTokenSecret()
 
 void Settings::setConsumerKey(QString key)
 {
-    settings->setValue("ConsumerKey", key);
+    setValue("ConsumerKey", key);
     consumer_key = key;
 }
 
 void Settings::setConsumerSecret(QString secret)
 {
-    settings->setValue("ConsumerSecret", secret);
+    setValue("ConsumerSecret", secret);
     consumer_secret = secret;
 }
 
 void Settings::setAccessToken(QString token)
 {
-    settings->setValue("AccessToken", token);
+    setValue("AccessToken", token);
     access_token = token;
 }
 
 void Settings::setAccessTokenSecret(QString token_secret)
 {
-    settings->setValue("AccessTokenSecret", token_secret);
+    setValue("AccessTokenSecret", token_secret);
     access_token_secret = token_secret;
 }

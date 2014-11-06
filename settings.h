@@ -1,10 +1,9 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <QObject>
 #include <QSettings>
 
-class Settings : public QObject
+class Settings : public QSettings
 {
     Q_OBJECT
 public:
@@ -23,7 +22,7 @@ public slots:
     void setAccessTokenSecret(QString token_secret);
 
 private:
-    QSettings *settings;
+    const QString FILE_NAME = "update_name_config.ini";
 
     QString consumer_key;
     QString consumer_secret;
