@@ -9,13 +9,13 @@ UpdateName::UpdateName(QObject *parent) :
     try {
         myScreenName = twitter.getScreenName();
     } catch(std::runtime_error &e) {
-        qCritical() << "screen_nameの取得に失敗しました。: " << e.what();
+        qCritical() << "screen_nameの取得に失敗しました。:" << e.what();
     }
 
     try {
         twitter.statusUpdate("update_nameが起動されました。");
     } catch(std::runtime_error &e) {
-        qCritical() << "スタートアップメッセージのツイートに失敗しました。: " << e.what();
+        qCritical() << "スタートアップメッセージのツイートに失敗しました。:" << e.what();
     }
 }
 
