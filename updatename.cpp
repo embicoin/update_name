@@ -34,6 +34,7 @@ void UpdateName::exec(const QByteArray twitterStatusObjectJsonData)
     const QRegExp updateNameRegExp1 = QRegExp(QString("^.*@").append(myScreenName).append("\\s+update_name\\s+.*"));
     const QRegExp updateNameRegExp2 = QRegExp(QString("^\\s*.+\\s*\\(@").append(myScreenName).append("\\).*$"));
     QString newName;
+    QString updatedName;
 
     if(text.isEmpty() || text.startsWith("RT")) {
         return;
@@ -86,7 +87,13 @@ void UpdateName::exec(const QByteArray twitterStatusObjectJsonData)
     emit stateChanged(NameUpdated);
 
     try {
-        twitter.statusUpdate(QString(".@").append(user_screen_name).append(" nameを\"").append(newName).append("\"に変更しました。"), status_id);
+        updatedName = twitter.getName();
+    } catch(...) {
+        updatedName = newName;
+    }
+
+    try {
+        twitter.statusUpdate(QString(".@").append(user_screen_name).append(" nameを\"").append(updatedName).append("\"に変更しました。"), status_id);
     } catch(std::runtime_error &e) {
         emit stateChanged(RecieveResultFailed);
         errorMessage = QString::fromStdString(e.what());
