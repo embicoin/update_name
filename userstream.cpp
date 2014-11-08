@@ -105,7 +105,7 @@ void UserStream::run()
                 }
                 response = reply->readAll();
 
-                qDebug() << "response" << response;
+                //qDebug() << "response" << response;
 
                 if(response.indexOf("\r") > 0) {
                     if(!buffer.isEmpty()) {
@@ -118,7 +118,7 @@ void UserStream::run()
                 }
             } else {
                 emit stateChanged(ConnectionFailed);
-                qCritical() << reply->errorString();
+                //qCritical() << reply->errorString();
                 failedCount++;
                 break;
             }
