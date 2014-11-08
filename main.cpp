@@ -21,5 +21,5 @@ int main(int argc, char *argv[])
 
     m.exec();
 
-    return a.exec();
+    return 0;
 }

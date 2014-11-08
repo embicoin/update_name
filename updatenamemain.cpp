@@ -21,7 +21,6 @@ void UpdateNameMain::userStreamStateChanged(UserStream::State state)
     switch (state) {
     case UserStream::ConnectionFailed:
         qCritical() << "UserStreamに接続できませんでした。";
-        loop.quit();
         break;
     case UserStream::Connecting:
         qDebug() << "UserStreamに接続しています...";
@@ -68,6 +67,7 @@ void UpdateNameMain::updateNameStateChanged(UpdateName::State state)
 void UpdateNameMain::exec()
 {
     connect(&userStream, SIGNAL(receivedData(QByteArray)), &updateName, SLOT(exec(QByteArray)));
+    connect(&userStream, SIGNAL(finished()), &loop, SLOT(quit()));
     qRegisterMetaType<UserStream::State>("UserStream::State");
     connect(&userStream, SIGNAL(stateChanged(UserStream::State)), this, SLOT(userStreamStateChanged(UserStream::State)));
     qRegisterMetaType<UpdateName::State>("UpdateName::State");
@@ -75,6 +75,9 @@ void UpdateNameMain::exec()
 
     userStream.start();
     loop.exec();
+
+    userStream.quit();
+    userStream.wait();
 
     disconnect(&userStream, SIGNAL(receivedData(QByteArray)), &updateName, SLOT(exec(QByteArray)));
     disconnect(&userStream, SIGNAL(stateChanged(UserStream::State)), this, SLOT(userStreamStateChanged(UserStream::State)));
