@@ -24,6 +24,7 @@ public:
 signals:
     void stateChanged(UserStream::State state);
     void receivedData(QByteArray data);
+    void finished();
 
 public slots:
     void stop();
