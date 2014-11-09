@@ -33,7 +33,7 @@ void UserStream::run()
     QNetworkAccessManager manager;
     QByteArray response;
     QByteArray buffer;
-    QNetworkReply *reply;
+    QNetworkReply *reply = new QNetworkReply;
     QEventLoop  loop;
     QTimer timer;
     bool connected = false;
