@@ -9,27 +9,19 @@ UpdateName::UpdateName(QObject *parent) :
     try {
         myScreenName = twitter.getScreenName();
     } catch(std::runtime_error &e) {
-        qCritical() << "screen_nameの取得に失敗しました。: " << e.what();
+        qCritical() << "screen_nameの取得に失敗しました。:" << e.what();
     }
 
-    postStartupMessage();
+    try {
+        twitter.statusUpdate("update_nameが起動されました。");
+    } catch(std::runtime_error &e) {
+        qCritical() << "スタートアップメッセージのツイートに失敗しました。:" << e.what();
+    }
 }
 
 QString UpdateName::lastErrorMessage()
 {
     return errorMessage;
-}
-
-void UpdateName::postStartupMessage()
-{
-    try {
-        twitter.statusUpdate("update_nameが起動されました。");
-        emit stateChanged(StartupMessagePosted);
-    } catch(std::runtime_error &e) {
-        errorMessage = e.what();
-        emit stateChanged(StartupMessageFailed);
-        return;
-    }
 }
 
 void UpdateName::exec(const QByteArray twitterStatusObjectJsonData)
@@ -42,6 +34,7 @@ void UpdateName::exec(const QByteArray twitterStatusObjectJsonData)
     const QRegExp updateNameRegExp1 = QRegExp(QString("^.*@").append(myScreenName).append("\\s+update_name\\s+.*"));
     const QRegExp updateNameRegExp2 = QRegExp(QString("^\\s*.+\\s*\\(@").append(myScreenName).append("\\).*$"));
     QString newName;
+    QString updatedName;
 
     if(text.isEmpty() || text.startsWith("RT")) {
         return;
@@ -94,7 +87,13 @@ void UpdateName::exec(const QByteArray twitterStatusObjectJsonData)
     emit stateChanged(NameUpdated);
 
     try {
-        twitter.statusUpdate(QString(".@").append(user_screen_name).append(" nameを\"").append(newName).append("\"に変更しました。"), status_id);
+        updatedName = twitter.getName();
+    } catch(...) {
+        updatedName = newName;
+    }
+
+    try {
+        twitter.statusUpdate(QString(".@").append(user_screen_name).append(" nameを\"").append(updatedName).append("\"に変更しました。"), status_id);
     } catch(std::runtime_error &e) {
         emit stateChanged(RecieveResultFailed);
         errorMessage = QString::fromStdString(e.what());

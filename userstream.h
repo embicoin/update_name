@@ -15,17 +15,16 @@ public:
     ~UserStream();
 
     enum State {
-        ConnectionFailed = -1,
-        Running          = 0,
-        Connecting       = 1,
-        DisConnected     = 2
+        ConnectionFailed,
+        Running,
+        Connecting,
+        DisConnected,
     };
 
 signals:
     void stateChanged(UserStream::State state);
-
-signals:
     void receivedData(QByteArray data);
+    void finished();
 
 public slots:
     void stop();

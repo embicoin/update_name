@@ -3,6 +3,7 @@
 #include <QNetworkAccessManager>
 #include <QMessageAuthenticationCode>
 #include <QCryptographicHash>
+#include <QTimer>
 
 #include "userstream.h"
 #include "update_name_oauth.h"
@@ -32,15 +33,18 @@ void UserStream::run()
     QNetworkAccessManager manager;
     QByteArray response;
     QByteArray buffer;
-    QNetworkReply *reply;
+    QNetworkReply *reply = NULL;
     QEventLoop  loop;
+    QTimer timer;
     bool connected = false;
+    int failedCount = 0;
 
     isStopped = false;
 
-    while(!isStopped) {
+    while(!isStopped && failedCount <= 5) {
         emit stateChanged(Connecting);
 
+        oauthParams.clear();
         oauthParams["oauth_consumer_key"]     = settings.consumerKey();
         oauthParams["oauth_token"]            = settings.accessToken();
         oauthParams["oauth_signature_method"] = OAUTH_SIGNATURE_METHOD;
@@ -48,10 +52,12 @@ void UserStream::run()
         oauthParams["oauth_nonce"]            = OAUTH_NONCE;
         oauthParams["oauth_version"]          = OAUTH_VERSION;
 
+        oauthQuery.clear();
         for(int i = 0; i < oauthParams.size(); i++) {
             oauthQuery.addQueryItem(oauthParams.keys()[i], oauthParams.values()[i].toString());
         }
 
+        signatureBaseString.clear();
         signatureBaseString.append("GET&")
                 .append(USERSTREAM_URL.toUtf8().toPercentEncoding())
                 .append("&")
@@ -62,6 +68,7 @@ void UserStream::run()
                                                  signatureKey,
                                                  QCryptographicHash::Sha1).toBase64().toPercentEncoding();
 
+        oauthHeader.clear();
         oauthHeader.append("OAuth ");
         for(int i = 0; i < oauthParams.size(); i++) {
             oauthHeader.append(oauthParams.keys()[i])
@@ -79,22 +86,31 @@ void UserStream::run()
 
         connect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));
         connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+        connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), &loop, SLOT(quit()));
+        connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
-        while(!reply->isFinished() || !isStopped || reply->error() != QNetworkReply::NoError) {
+        timer.setSingleShot(true);
+
+        buffer.clear();
+
+        while(!reply->isFinished() && !isStopped && reply->error() == QNetworkReply::NoError) {
+            timer.start(60000);
             loop.exec();
 
-            if(reply->error() == QNetworkReply::NoError) {
+            if(reply->error() == QNetworkReply::NoError && timer.isActive()) {
                 if(!connected) {
                     emit stateChanged(Running);
                     connected = true;
+                    failedCount = 0;
                 }
-
                 response = reply->readAll();
+
+                //qDebug() << "response" << response;
 
                 if(response.indexOf("\r") > 0) {
                     if(!buffer.isEmpty()) {
                         response.prepend(QString::fromUtf8(buffer).split("\r").first().toUtf8());
-                        buffer.replace(QString::fromUtf8(buffer).split("\r").first().toUtf8(), "");
+                    buffer.replace(QString::fromUtf8(buffer).split("\r").first().toUtf8(), "");
                     }
                     emit receivedData(response);
                 } else if(response.indexOf("\r") == -1) {
@@ -102,14 +118,25 @@ void UserStream::run()
                 }
             } else {
                 emit stateChanged(ConnectionFailed);
+                //qCritical() << reply->errorString();
+                failedCount++;
+                break;
             }
         }
-
         emit stateChanged(DisConnected);
         connected = false;
+
+        if(failedCount <= 5) {
+            qWarning() << "再接続まで5秒待機します。";
+            sleep(5);
+        } else {
+            break;
+        }
     }
 
     reply->deleteLater();
+
+    emit finished();
 }
 
 void UserStream::stop()

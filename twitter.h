@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QNetworkAccessManager>
-#include <QJsonDocument>
 
 #include "settings.h"
 

@@ -21,7 +21,6 @@ void UpdateNameMain::userStreamStateChanged(UserStream::State state)
     switch (state) {
     case UserStream::ConnectionFailed:
         qCritical() << "UserStreamに接続できませんでした。";
-        loop.quit();
         break;
     case UserStream::Connecting:
         qDebug() << "UserStreamに接続しています...";
@@ -48,18 +47,11 @@ void UpdateNameMain::updateNameStateChanged(UpdateName::State state)
         qCritical() << "nameの変更に失敗しました。";
         qCritical() << updateName.lastErrorMessage();
         break;
-    case UpdateName::StartupMessageFailed:
-        qCritical() << "スタートアップメッセージのツイートに失敗しました。";
-        qCritical() << updateName.lastErrorMessage();
-        break;
     case UpdateName::Aborted:
         qWarning() << "update_nameが拒否されました。";
         break;
     case UpdateName::Executed:
         qDebug() << "update_nameが実行されました。";
-        break;
-    case UpdateName::StartupMessagePosted:
-        qDebug() << "スタートアップメッセージをツイートしました。";
         break;
     case UpdateName::NameUpdated:
         qDebug() << "nameが変更されました。";
@@ -75,6 +67,7 @@ void UpdateNameMain::updateNameStateChanged(UpdateName::State state)
 void UpdateNameMain::exec()
 {
     connect(&userStream, SIGNAL(receivedData(QByteArray)), &updateName, SLOT(exec(QByteArray)));
+    connect(&userStream, SIGNAL(finished()), &loop, SLOT(quit()));
     qRegisterMetaType<UserStream::State>("UserStream::State");
     connect(&userStream, SIGNAL(stateChanged(UserStream::State)), this, SLOT(userStreamStateChanged(UserStream::State)));
     qRegisterMetaType<UpdateName::State>("UpdateName::State");
@@ -82,6 +75,9 @@ void UpdateNameMain::exec()
 
     userStream.start();
     loop.exec();
+
+    userStream.quit();
+    userStream.wait();
 
     disconnect(&userStream, SIGNAL(receivedData(QByteArray)), &updateName, SLOT(exec(QByteArray)));
     disconnect(&userStream, SIGNAL(stateChanged(UserStream::State)), this, SLOT(userStreamStateChanged(UserStream::State)));

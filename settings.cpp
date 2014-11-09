@@ -1,11 +1,8 @@
 #include "settings.h"
 
-#define FILE_NAME "update_name_config.ini"
-
 Settings::Settings(QObject *parent) :
     QObject(parent)
 {
-    settings = new QSettings(FILE_NAME, QSettings::IniFormat, this);
     consumer_key = settings->value("ConsumerKey").toString();
     consumer_secret = settings->value("ConsumerSecret").toString();
     access_token = settings->value("AccessToken").toString();

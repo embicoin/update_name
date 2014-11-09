@@ -34,3 +34,6 @@ HEADERS += \
     oauth.h \
     authorize_update_name.h \
     updatenamemain.h
+
+OTHER_FILES += \
+    README.md
